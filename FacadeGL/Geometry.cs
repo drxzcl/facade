@@ -108,10 +108,32 @@ namespace Facade
 
                 GL.EnableVertexAttribArray(i);
 
+                // Handle the sizes of the vector types
+                int components = 1;
+                VertexAttribPointerType datatype = VertexAttribPointerType.Float;
+                bool normalize = true;
+
+                // This must exist in OpenTK somewhere ....
+                if (fi[i].FieldType == typeof(OpenTK.Vector4))
+                {
+                    components = 4;
+                    datatype = VertexAttribPointerType.Float;
+                }
+                else if (fi[i].FieldType == typeof(UInt32))
+                {
+                    components = 1;
+                    datatype = VertexAttribPointerType.UnsignedInt;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+
+
                 GL.VertexAttribPointer(i,
-                    Marshal.SizeOf(fi[i].FieldType) / 4,
-                    VertexAttribPointerType.Float,
-                    true,
+                    components,
+                    datatype,
+                    normalize,
                     Marshal.SizeOf(typeof(VertexType)),
                     Marshal.OffsetOf(typeof(VertexType), fi[i].Name));
                 effect.BindAttrib(i, fi[i].Name);

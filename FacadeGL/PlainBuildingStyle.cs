@@ -15,6 +15,7 @@ namespace Facade
         public Vector4 normal;
         public Vector4 texcoord;
         public Vector4 custom;
+        public UInt32 dummy;
                 
 
         public BuildingVertex(Vector4 Position, Vector4 Normal, Vector4 TexCoord, Vector4 Custom)
@@ -23,6 +24,7 @@ namespace Facade
             this.normal = Normal;
             this.texcoord = TexCoord;
             this.custom = Custom;
+            this.dummy = 0;
         }
     }
 
