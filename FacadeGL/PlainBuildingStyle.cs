@@ -20,8 +20,8 @@ namespace Facade
         public Int32 windowTileNumber;
         public Int32 altWindowTileNumber;
 
-        //public static readonly int NO_GROUND_FLOOR_WINDOWS = 0x1;
-        //public static readonly int ALT_WINDOWS_ABOVE_DOOR = 0x2;
+        public static readonly int NO_GROUND_FLOOR_WINDOWS = 0x1;
+        public static readonly int ALT_WINDOWS_ABOVE_DOOR = 0x2;
 
 
         public BuildingVertex(Vector4 Position, Vector4 Normal, Vector4 TexCoord, int doorx, int flags, int wallTileNumber, int windowTileNumber, int altWindowTileNumber)
@@ -44,6 +44,7 @@ namespace Facade
        
         public List<int> windows = new List<int>();
         public List<int> altWindows = new List<int>();
+        public List<int> walls = new List<int>();
 
         Random random;
 
@@ -104,12 +105,10 @@ namespace Facade
         public Geometry<BuildingVertex> createBuilding(Vector3 origin, Vector3 area)
         {
             var g = new Geometry<BuildingVertex>();
-            int wallnr = random.Next(4);
-            Console.WriteLine(String.Format("Wall: {0}",wallnr));
             AddBuildingSegment(g, origin, area,
                 random.Next((int)area.X) + 1,
-                0,//(random.Next(2) * BuildingVertex.NO_GROUND_FLOOR_WINDOWS + random.Next(2) * BuildingVertex.ALT_WINDOWS_ABOVE_DOOR),
-                wallnr,
+                (random.Next(2) * BuildingVertex.NO_GROUND_FLOOR_WINDOWS + random.Next(2) * BuildingVertex.ALT_WINDOWS_ABOVE_DOOR),
+                choose(walls),
                 choose(windows),
                 choose(altWindows)
                 );

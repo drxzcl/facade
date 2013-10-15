@@ -37,8 +37,8 @@ vec4 diff(void)
   
   vec2 tc = vec2(o_texcoord.x,-o_texcoord.y);
 
-  int nogroundfloorwindows = 0;
-  int altwindowsabovedoor = 0;
+  int nogroundfloorwindows = o_flags & 0x1;
+  int altwindowsabovedoor = (o_flags & 0x3) >> 1;
 
   float interiorTileNumber = rand(floor(tc.xy)) * 4;
   

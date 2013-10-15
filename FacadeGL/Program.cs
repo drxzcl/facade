@@ -124,6 +124,12 @@ namespace Facade
             buildingStyle.windows.Add(0);
             buildingStyle.windows.Add(2);
             buildingStyle.windows.Add(4);
+            buildingStyle.walls.Add(0);
+            buildingStyle.walls.Add(1);
+            buildingStyle.walls.Add(2);
+            buildingStyle.walls.Add(3);
+            buildingStyle.walls.Add(4);
+            buildingStyle.walls.Add(5);
             g = buildingStyle.createBuilding(new Vector3(-2.5f, -2.5f, -2.5f), new Vector3(5f, 5f, 5f));
 
             g.InitializePrimitive(effect);                        
