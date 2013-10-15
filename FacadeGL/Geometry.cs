@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -8,27 +9,47 @@ using System.Runtime.InteropServices;
 namespace Facade
 {
 
+    [AttributeUsage(
+       AttributeTargets.Field)]
+    public class Normalized : System.Attribute
+    {
+    }
 
     public struct CustomVertex
     {
 
         public Vector4 Position;
         public Vector4 Color;
+        [Normalized]
+        public UInt32 Dummy;
 
         public CustomVertex(Vector4 Position, Vector4 Color)
         {
             this.Position = Position;
             this.Color = Color;
+            this.Dummy = 0;
         }
     }
 
-
+    class TypeInfo
+    {
+        public VertexAttribPointerType gltype;
+        public int count;
+    }
 
     /// <summary>
     /// Enables us to incrementally build vertex/index buffers
     /// </summary>
     public class Geometry<VertexType> : IDisposable where VertexType : struct
     {
+        // Data for type conversion between C# and GL
+        // Add types here.
+        private static readonly Dictionary<Type, TypeInfo> type_xlate = new Dictionary<Type, TypeInfo>
+        {
+            {typeof(Vector4), new TypeInfo {gltype=VertexAttribPointerType.Float,count=4}},
+            {typeof(UInt32), new TypeInfo {gltype=VertexAttribPointerType.UnsignedInt,count=1}}
+        };
+
 
         // During the process of constructing a primitive model, vertex
         // and index data is stored on the CPU in these managed lists.
@@ -39,6 +60,9 @@ namespace Facade
         // store it on the GPU ready for efficient rendering.
 
         int bufferHandle, vaoHandle;
+        
+        
+        
         #region Initialization
 
 
@@ -97,43 +121,18 @@ namespace Facade
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferHandle);
 
+            
+            // Create and binf the relevant vertex attrib arrays
             FieldInfo[] fi = typeof(VertexType).GetFields(BindingFlags.Public | BindingFlags.Instance);
             for (int i = 0; i < fi.Length; ++i)
             {
-                Console.WriteLine(fi[i].Name);
-                Console.WriteLine(i);
-                Console.WriteLine(Marshal.SizeOf(fi[i].FieldType) / 4);
-                Console.WriteLine(Marshal.SizeOf(typeof(VertexType)));
-                Console.WriteLine(Marshal.OffsetOf(typeof(VertexType), fi[i].Name));
-
+                
                 GL.EnableVertexAttribArray(i);
-
-                // Handle the sizes of the vector types
-                int components = 1;
-                VertexAttribPointerType datatype = VertexAttribPointerType.Float;
-                bool normalize = true;
-
-                // This must exist in OpenTK somewhere ....
-                if (fi[i].FieldType == typeof(OpenTK.Vector4))
-                {
-                    components = 4;
-                    datatype = VertexAttribPointerType.Float;
-                }
-                else if (fi[i].FieldType == typeof(UInt32))
-                {
-                    components = 1;
-                    datatype = VertexAttribPointerType.UnsignedInt;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-
-
+                
                 GL.VertexAttribPointer(i,
-                    components,
-                    datatype,
-                    normalize,
+                    type_xlate[fi[i].FieldType].count,    // type_xlate contains the GL type and number of components for every C# type.
+                    type_xlate[fi[i].FieldType].gltype,   // If you get a keyerror at this point, adjust the type mapping in type_xlate.
+                    Attribute.IsDefined(fi[i], typeof(Normalized)), // Want normalization? Add it to the VertexType type using attributes.
                     Marshal.SizeOf(typeof(VertexType)),
                     Marshal.OffsetOf(typeof(VertexType), fi[i].Name));
                 effect.BindAttrib(i, fi[i].Name);
