@@ -35,6 +35,7 @@ namespace Facade
     {
         public VertexAttribPointerType gltype;
         public int count;
+        public bool isinteger;
     }
 
     /// <summary>
@@ -46,8 +47,9 @@ namespace Facade
         // Add types here.
         private static readonly Dictionary<Type, TypeInfo> type_xlate = new Dictionary<Type, TypeInfo>
         {
-            {typeof(Vector4), new TypeInfo {gltype=VertexAttribPointerType.Float,count=4}},
-            {typeof(UInt32), new TypeInfo {gltype=VertexAttribPointerType.UnsignedInt,count=1}}
+            {typeof(Vector4), new TypeInfo {gltype=VertexAttribPointerType.Float,count=4,isinteger=false}},
+            {typeof(UInt32), new TypeInfo {gltype=VertexAttribPointerType.UnsignedInt,count=1,isinteger=true}},
+            {typeof(int), new TypeInfo {gltype=VertexAttribPointerType.Int,count=1,isinteger=true}}
         };
 
 
@@ -118,24 +120,41 @@ namespace Facade
             // stored in the VAO so we simply need to bind the correct VAO.
             GL.GenVertexArrays(1, out vaoHandle);
             GL.BindVertexArray(vaoHandle);
+            System.Console.WriteLine(GL.GetError().ToString());
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, bufferHandle);
 
-            
+           
             // Create and binf the relevant vertex attrib arrays
             FieldInfo[] fi = typeof(VertexType).GetFields(BindingFlags.Public | BindingFlags.Instance);
             for (int i = 0; i < fi.Length; ++i)
             {
                 
                 GL.EnableVertexAttribArray(i);
-                
-                GL.VertexAttribPointer(i,
-                    type_xlate[fi[i].FieldType].count,    // type_xlate contains the GL type and number of components for every C# type.
-                    type_xlate[fi[i].FieldType].gltype,   // If you get a keyerror at this point, adjust the type mapping in type_xlate.
-                    Attribute.IsDefined(fi[i], typeof(Normalized)), // Want normalization? Add it to the VertexType type using attributes.
-                    Marshal.SizeOf(typeof(VertexType)),
-                    Marshal.OffsetOf(typeof(VertexType), fi[i].Name));
+                // We need to split integer and non-integer operations because they need different calls.
+                // Using VertexAttribPointer with integer data works, but data will be converted to float before it hits the shaders
+                if (type_xlate[fi[i].FieldType].isinteger)
+                {
+                    GL.VertexAttribIPointer(i,
+                        type_xlate[fi[i].FieldType].count,    // type_xlate contains the GL type and number of components for every C# type.
+                        (VertexAttribIPointerType)type_xlate[fi[i].FieldType].gltype,   // If you get a keyerror at this point, adjust the type mapping in type_xlate.
+                        Marshal.SizeOf(typeof(VertexType)),
+                        Marshal.OffsetOf(typeof(VertexType), fi[i].Name));
+                }
+                else
+                {
+                    GL.VertexAttribPointer(i,
+                        type_xlate[fi[i].FieldType].count,    // type_xlate contains the GL type and number of components for every C# type.
+                        type_xlate[fi[i].FieldType].gltype,   // If you get a keyerror at this point, adjust the type mapping in type_xlate.
+                        Attribute.IsDefined(fi[i], typeof(Normalized)), // Want normalization? Add it to the VertexType type using attributes.
+                        Marshal.SizeOf(typeof(VertexType)),
+                        Marshal.OffsetOf(typeof(VertexType), fi[i].Name));
+                }
+                System.Console.WriteLine(GL.GetError().ToString());
+
                 effect.BindAttrib(i, fi[i].Name);
+                System.Console.WriteLine(GL.GetError().ToString());
+
 
             }
 

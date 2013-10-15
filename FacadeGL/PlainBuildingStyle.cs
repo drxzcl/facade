@@ -14,17 +14,27 @@ namespace Facade
         public Vector4 position;
         public Vector4 normal;
         public Vector4 texcoord;
-        public Vector4 custom;
-        public UInt32 dummy;
-                
+        public Int32 doorx;
+        public Int32 flags;
+        public Int32 wallTileNumber;
+        public Int32 windowTileNumber;
+        public Int32 altWindowTileNumber;
 
-        public BuildingVertex(Vector4 Position, Vector4 Normal, Vector4 TexCoord, Vector4 Custom)
+        //public static readonly int NO_GROUND_FLOOR_WINDOWS = 0x1;
+        //public static readonly int ALT_WINDOWS_ABOVE_DOOR = 0x2;
+
+
+        public BuildingVertex(Vector4 Position, Vector4 Normal, Vector4 TexCoord, int doorx, int flags, int wallTileNumber, int windowTileNumber, int altWindowTileNumber)
         {
             this.position = Position;
             this.normal = Normal;
             this.texcoord = TexCoord;
-            this.custom = Custom;
-            this.dummy = 0;
+            this.flags = flags;
+            this.doorx = doorx;
+            this.wallTileNumber = wallTileNumber;
+            this.windowTileNumber = windowTileNumber;
+            this.altWindowTileNumber = altWindowTileNumber;
+
         }
     }
 
@@ -47,7 +57,7 @@ namespace Facade
         }
 
 
-        void AddBuildingSegment(Geometry<BuildingVertex> g, Vector3 origin, Vector3 area, Vector4 config)
+        void AddBuildingSegment(Geometry<BuildingVertex> g, Vector3 origin, Vector3 area, int doorx, int flags, int wallTileNumber, int windowTileNumber, int altWindowTileNumber)
         {
             // Four vertices per face
             // Font and back
@@ -58,49 +68,51 @@ namespace Facade
             float breadth = area.Z - 1e-4f;
 
             normal = new Vector4(0, 0, -1, 0); // front            
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, height, 0f, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, 0f, 1f) + o, normal, new Vector4(width, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, 0f, 1f) + o, normal, new Vector4(width, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, 0f, 1f) + o, normal, new Vector4(width, 0f, 0f, 0f), config));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, height, 0f, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, 0f, 1f) + o, normal, new Vector4(width, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, 0f, 1f) + o, normal, new Vector4(width, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, 0f, 1f) + o, normal, new Vector4(width, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
 
             normal = new Vector4(0, 0, 1, 0); // back
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, breadth, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(width, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, height, breadth, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, breadth, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, breadth, 1f) + o, normal, new Vector4(width, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(width, height, 0f, 0f), config));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, breadth, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(width, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, height, breadth, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, breadth, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, breadth, 1f) + o, normal, new Vector4(width, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(width, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
 
             normal = new Vector4(-1, 0, 0, 0); // side1
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, height, 0f, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, breadth, 1f) + o, normal, new Vector4(breadth, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(0f, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), config));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, height, 0f, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, 0f, breadth, 1f) + o, normal, new Vector4(breadth, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(0f, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
 
             normal = new Vector4(1, 0, 0, 0); // side2
-            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, 0f, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), config));
-            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, breadth, 1f) + o, normal, new Vector4(breadth, 0f, 0f, 0f), config));
+            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, 0f, 1f) + o, normal, new Vector4(0f, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, 0f, 1f) + o, normal, new Vector4(0f, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, height, breadth, 1f) + o, normal, new Vector4(breadth, height, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
+            g.AddVertex(new BuildingVertex(new Vector4(width, 0f, breadth, 1f) + o, normal, new Vector4(breadth, 0f, 0f, 0f), doorx, flags, wallTileNumber, windowTileNumber, altWindowTileNumber));
         }
 
 
         public Geometry<BuildingVertex> createBuilding(Vector3 origin, Vector3 area)
         {
             var g = new Geometry<BuildingVertex>();
-            Vector4 config = new Vector4();
-            config.X = (random.Next((int)area.X) + 1);
-            config.Y = random.Next(2) / 10f + 1e-6f;
-            config.Y += random.Next(2) / 100f;
-            config.Z = random.Next(4) / 10f + choose(windows) / 100f + choose(altWindows) / 1000f + 1e-6f;
-            config.W = random.Next(100) / 100f + 1e-6f;
-            AddBuildingSegment(g, origin, area, config);
+            int wallnr = random.Next(4);
+            Console.WriteLine(String.Format("Wall: {0}",wallnr));
+            AddBuildingSegment(g, origin, area,
+                random.Next((int)area.X) + 1,
+                0,//(random.Next(2) * BuildingVertex.NO_GROUND_FLOOR_WINDOWS + random.Next(2) * BuildingVertex.ALT_WINDOWS_ABOVE_DOOR),
+                wallnr,
+                choose(windows),
+                choose(altWindows)
+                );
             return g;
         }
 

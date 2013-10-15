@@ -15,17 +15,15 @@ const vec3 lightColor = vec3(0.9, 0.9, 0.7);
 in vec4 o_position;
 in vec4 o_normal;
 in vec4 o_texcoord;
-in vec4 o_custom;
+flat in  int o_doorx;
+flat in  int o_flags;
+flat in  int o_wallTileNumber;
+flat in  int o_windowTileNumber;
+flat in  int o_altWindowTileNumber;
 
 out vec4 out_frag_color;
 
-float getdecs(inout float f, int decimals)
-{
-	f = f*pow(float(10),float(decimals));
-	float result = floor(f+0.1); // Bias to stabilize the operation
-	f = fract(f);
-	return result;
-}
+
 
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 4378.5453);
@@ -34,23 +32,19 @@ float rand(vec2 co){
 
 vec4 diff(void)
 {
-  //out_frag_color = vec4(1,0,0,1);
-
+  //out_frag_color = vec4(0.25*float(o_wallTileNumber),0,0,1);
+  //return out_frag_color;
+  
   vec2 tc = vec2(o_texcoord.x,-o_texcoord.y);
 
-  vec4 custom = o_custom;
-  float doorx = round(o_custom.x);
-  int nogroundfloorwindows = int(getdecs(custom.y,1));
-  int altwindowsabovedoor = int(getdecs(custom.y,1));
-  float wallTileNumber = getdecs(custom.z,1);
-  float windowTileNumber = getdecs(custom.z,1);
-  float altWindowTileNumber = getdecs(custom.z,1);
+  int nogroundfloorwindows = 0;
+  int altwindowsabovedoor = 0;
 
-  float interiorTileNumber = rand(floor(tc.xy+vec2(custom.w,0))) * 4;
-
-  vec4 wall = texture(wallTextures, vec3(tc,wallTileNumber));
+  float interiorTileNumber = rand(floor(tc.xy)) * 4;
   
-  if ((floor(tc.x) == doorx) && (ceil(tc.y) == 0))
+  vec4 wall = texture(wallTextures, vec3(tc,o_wallTileNumber));
+  
+  if ((floor(tc.x) == o_doorx) && (ceil(tc.y) == 0))
   {
 	// Door time!
 	vec4 door = texture(doorTextures,vec3(tc,0));
@@ -63,15 +57,15 @@ vec4 diff(void)
   {
 	blend = vec4(1,0,0,1);
   }
-  else if ((altwindowsabovedoor == 1) && (floor(tc.x) == doorx))
+  else if ((altwindowsabovedoor == 1) && (floor(tc.x) == o_doorx))
   {
-	   window = texture(windowTextures, vec3(tc,altWindowTileNumber*2));
-	   blend = texture(windowTextures, vec3(tc,altWindowTileNumber*2+1));
+	   window = texture(windowTextures, vec3(tc,int(o_altWindowTileNumber)*2));
+	   blend = texture(windowTextures, vec3(tc,int(o_altWindowTileNumber)*2+1));
   }
   else
   {
-     window = texture(windowTextures, vec3(tc,windowTileNumber*2));
-     blend = texture(windowTextures, vec3(tc,windowTileNumber*2+1));
+     window = texture(windowTextures, vec3(tc,int(o_windowTileNumber)*2));
+     blend = texture(windowTextures, vec3(tc,int(o_windowTileNumber)*2+1));
   }
 
   vec4 interior = texture(interiorTextures, vec3(tc,interiorTileNumber));
