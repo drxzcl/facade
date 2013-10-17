@@ -35,7 +35,7 @@
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Users\ranieri\Documents\OpenTK\1.0\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+      <HintPath>Dependencies\$(Configuration)\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,7 +53,7 @@
     <Compile Include="Geometry.cs" />
     <Compile Include="PlainBuildingStyle.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="AssemblyInfo.cs" />    
+    <Compile Include="AssemblyInfo.cs" />
     <None Include="Assets\Shaders\PlainBuildingStyle_fp.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
